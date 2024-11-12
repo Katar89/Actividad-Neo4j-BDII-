@@ -1,0 +1,16 @@
+idDireccion,ubicacion,numero,barrio,codigoPostal
+1,Calle 10,25,Centro,110001
+2,Carrera 15,50,Norte,110002
+3,Calle 45,100,Sur,110003
+4,Avenida 30,200,Centro,110004
+5,Carrera 20,150,Sur,110005
+6,Calle 60,75,Norte,110006
+7,Avenida 50,120,Este,110007
+8,Calle 70,80,Oeste,110008
+9,Carrera 10,200,Centro,110009
+10,Avenida 80,250,Sur,110010
+11,Calle 90,50,Norte,110011
+12,Avenida 100,300,Este,110012
+13,Carrera 30,100,Oeste,110013
+14,Calle 110,125,Centro,110014
+15,Avenida 120,175,Sur,110015
