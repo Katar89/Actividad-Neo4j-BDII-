@@ -1,0 +1,29 @@
+1. Sugerir productos al cliente respecto a los seleccionados en la orden. ¿Qué otros
+productos le podrían interesar al cliente respecto a los seleccionados en la orden?
+En este caso, se debe tener en cuenta los productos relacionados a cada producto,
+no deben existir repetidos.
+
+MATCH (c:Cliente)-[:HA_CREADO]->(o:Orden {idOrden: 1})-[:ESTA_COMPUESTA_DE]->(p:Producto)
+MATCH (p)-[:ESTA_RELACIONADO]->(sugerido:Producto)
+WHERE NOT (o)-[:CONTENER]->(sugerido)
+RETURN DISTINCT sugerido.nombre AS productoRecomendado
+
+2. Sugerir productos al cliente respecto a los que ha visto. ¿Qué productos le podrían
+interesar al cliente respecto a los vistos? En este caso, solo se deberán tener en
+cuenta los de la misma categoría.
+
+MATCH (c:Cliente {idCliente: 2})-[:HA_VISTO]->(p:Producto)-[:PERTENECE_A]->(cat:Categoria)
+MATCH (sugerido:Producto)-[:PERTENECE_A]->(cat)
+WHERE NOT (c)-[:HA_VISTO]->(sugerido)
+RETURN DISTINCT sugerido.nombre AS productoRecomendado, cat.nombre AS categoria
+
+3. Sugerir productos al cliente respecto a los ordenados por sus vecinos (clientes que
+viven en su misma ciudad) ¿Qué otros productos podrían interesarle a un cliente
+respecto a los ordenados por sus vecinos?
+
+MATCH (c:Cliente {idCliente: 1})-[:VIVE_EN]->(ciudad:Ciudad)
+MATCH (vecino:Cliente)-[:VIVE_EN]->(ciudad)
+MATCH (vecino)-[:HA_CREADO]->(orden:Orden)-[:ESTA_COMPUESTA_DE]->(producto:Producto)
+WHERE vecino.idCliente <> 1 AND NOT (c)-[:HA_CREADO]->(:Orden)-[:ESTA_COMPUESTA_DE]->(producto)
+RETURN DISTINCT producto.nombre AS productoRecomendado, COUNT(orden) AS vecesOrdenado
+ORDER BY vecesOrdenado DESC
