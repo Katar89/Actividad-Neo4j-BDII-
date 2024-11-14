@@ -3,27 +3,32 @@ productos le podrían interesar al cliente respecto a los seleccionados en la or
 En este caso, se debe tener en cuenta los productos relacionados a cada producto,
 no deben existir repetidos.
 
-MATCH (c:Cliente)-[:HA_CREADO]->(o:Orden {idOrden: 1})-[:ESTA_COMPUESTA_DE]->(p:Producto)
-MATCH (p)-[:ESTA_RELACIONADO]->(sugerido:Producto)
-WHERE NOT (o)-[:CONTENER]->(sugerido)
-RETURN DISTINCT sugerido.nombre AS productoRecomendado
+MATCH (c:Cliente)-[:HA_CREADO]->(o:Orden)-[r:ESTA_COMPUESTA_DE]->(p:Producto),
+(p)-[:ESTA_RELACIONADO]->(relatedProduct:Producto)
+WHERE c.idCliente = {clienteId:1}
+RETURN DISTINCT relatedProduct.nombre AS Producto_Sugerido
+ORDER BY Producto_Sugerido;
 
 2. Sugerir productos al cliente respecto a los que ha visto. ¿Qué productos le podrían
 interesar al cliente respecto a los vistos? En este caso, solo se deberán tener en
 cuenta los de la misma categoría.
 
-MATCH (c:Cliente {idCliente: 2})-[:HA_VISTO]->(p:Producto)-[:PERTENECE_A]->(cat:Categoria)
-MATCH (sugerido:Producto)-[:PERTENECE_A]->(cat)
-WHERE NOT (c)-[:HA_VISTO]->(sugerido)
-RETURN DISTINCT sugerido.nombre AS productoRecomendado, cat.nombre AS categoria
+MATCH (c:Cliente)-[:HA_VISTO]->(p:Producto)-[:PERTENECE_A]->(cat:Categoria),
+(otherProduct:Producto)-[:PERTENECE_A]->(cat)
+WHERE c.idCliente = {clienteId:1} AND p.idProducto <> otherProduct.idProducto
+RETURN DISTINCT otherProduct.nombre AS Producto_Sugerido
+ORDER BY Producto_Sugerido;
 
 3. Sugerir productos al cliente respecto a los ordenados por sus vecinos (clientes que
 viven en su misma ciudad) ¿Qué otros productos podrían interesarle a un cliente
 respecto a los ordenados por sus vecinos?
 
-MATCH (c:Cliente {idCliente: 1})-[:VIVE_EN]->(ciudad:Ciudad)
-MATCH (vecino:Cliente)-[:VIVE_EN]->(ciudad)
-MATCH (vecino)-[:HA_CREADO]->(orden:Orden)-[:ESTA_COMPUESTA_DE]->(producto:Producto)
-WHERE vecino.idCliente <> 1 AND NOT (c)-[:HA_CREADO]->(:Orden)-[:ESTA_COMPUESTA_DE]->(producto)
-RETURN DISTINCT producto.nombre AS productoRecomendado, COUNT(orden) AS vecesOrdenado
-ORDER BY vecesOrdenado DESC
+MATCH (c:Cliente)-[:VIVE_EN]->(d:Direccion)-[:ESTA_UBICADA_EN]->(ci:Ciudad),
+(neighbor:Cliente)-[:VIVE_EN]->(d),
+(neighbor)-[:HA_CREADO]->(o:Orden)-[:ESTA_COMPUESTA_DE]->(p:Producto)
+WHERE c.idCliente = {clienteId:1} AND neighbor.idCliente <> c.idCliente
+WITH c, p, o
+MATCH (c)-[:HA_CREADO]->(cOrder:Orden)-[:ESTA_COMPUESTA_DE]->(cProduct:Producto)
+WHERE NOT (cProduct.idProducto = p.idProducto) 
+RETURN DISTINCT p.nombre AS Producto_Sugerido
+ORDER BY Producto_Sugerido;
