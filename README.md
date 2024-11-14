@@ -3,4 +3,5 @@ Actividad final para bases de datos 2 que consta de una base de datos con grafos
 
 
 Juan David Cuero Reina
+----------------------
 Jose Sterling Minota
