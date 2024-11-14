@@ -1,0 +1,47 @@
+CREATE (:Cliente {idCliente: 1, nombre: 'Juan Perez', edad: 30, telefono: '555-1234', sexo: 'M', tieneTitulo: true});
+
+CREATE (:Direccion {idDireccion: 1, ubicacion: 'Calle 10', numero: '123', barrio: 'Centro', codigoPostal: '1001'});
+
+CREATE (:Ciudad {idCiudad: 1, nombre: 'Bogotá', pais: 'Colombia'});
+
+CREATE (:Aficion {nombre: 'Café', tipo: 'Gastronomía'});
+
+CREATE (:Estudio {idEstudio: 1, titulo: 'Ingeniería'});
+
+CREATE (:Orden {idOrden: 1, fechaOrden: '2023-11-01', monto: 50000});
+
+CREATE (:Producto {idProducto: 1, nombre: 'Café Molido 350g', precio: 15000});
+
+CREATE (:Categoria {idCategoria: 1, nombre: 'Café'});
+
+CREATE (:Proveedor {idProveedor: 1, nombre: 'Café Premium S.A.'});
+
+MATCH (c:Cliente {idCliente: 1}), (d:Direccion {idDireccion: 1})
+CREATE (c)-[:VIVE_EN]->(d);
+
+MATCH (d:Direccion {idDireccion: 1}), (ci:Ciudad {idCiudad: 1})
+CREATE (d)-[:ESTA_UBICADA_EN]->(ci);
+
+MATCH (c:Cliente {idCliente: 1}), (a:Aficion {nombre: 'Café'})
+CREATE (c)-[:TIENE_UNA]->(a);
+
+MATCH (c:Cliente {idCliente: 1}), (e:Estudio {idEstudio: 1})
+CREATE (c)-[:TIENE_TITULO_EN]->(e);
+
+MATCH (c:Cliente {idCliente: 1}), (o:Orden {idOrden: 1})
+CREATE (c)-[:HA_CREADO]->(o);
+
+MATCH (o:Orden {idOrden: 1}), (p:Producto {idProducto: 1})
+CREATE (o)-[:ESTA_COMPUESTA_DE {cantidad: 2}]->(p);
+
+MATCH (c:Cliente {idCliente: 1}), (p:Producto {idProducto: 1})
+CREATE (c)-[:HA_VISTO]->(p);
+
+MATCH (p:Producto {idProducto: 1}), (cat:Categoria {idCategoria: 1})
+CREATE (p)-[:PERTENECE_A]->(cat);
+
+MATCH (p:Producto {idProducto: 1}), (prov:Proveedor {idProveedor: 1})
+CREATE (p)-[:DISTRIBUIDO_POR]->(prov);
+
+MATCH (p1:Producto {idProducto: 1}), (p2:Producto {idProducto: 2})
+CREATE (p1)-[:ESTA_RELACIONADO]->(p2);
