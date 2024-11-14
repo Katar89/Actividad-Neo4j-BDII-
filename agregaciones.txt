@@ -1,26 +1,32 @@
-1. ¿Cuales son los productos mas comprados por un cliente?
+1. ¿Cuáles son los productos más comprados por un cliente?
 
 MATCH (c:Cliente {idCliente: 1})-[:HA_CREADO]->(o:Orden)-[r:ESTA_COMPUESTA_DE]->(p:Producto)
-RETURN p.nombre AS producto, SUM(r.cantidad) AS Total_Comprado
-ORDER Total_Comprado DESC
+RETURN p.nombre AS Producto, SUM(r.cantidad) AS Total_Comprado
+ORDER BY Total_Comprado DESC;
 
+2. ¿Cuáles son los productos más demandados por los clientes de un sexo
+(hombre/mujer)?
 
-2. ¿Cuáles son los productos más demandados por los clientes de un sexo (hombre/mujer)?
+MATCH (c:Cliente)-[:HA_CREADO]->(o:Orden)-[r:ESTA_COMPUESTA_DE]->(p:Producto)
+WHERE c.sexo = 'M'  // Cambiar 'M' por 'F' para mujeres
+RETURN p.nombre AS Producto, SUM(r.cantidad) AS Total_Demandado
+ORDER BY Total_Demandado DESC;
 
-MATCH (c:Cliente {sexo: "F"})-[:HA_CREADO]->(o:Orden)-[r:ESTA_COMPUESTA_DE]->(p:Producto)
-RETURN p.nombre AS producto, SUM(r.cantidad) AS Total_Demandado
-ORDER BY Total_Demandado DESC
+3. ¿Cuáles son los principales productos comprados por los clientes que tiene un título
+académico?
 
+MATCH (c:Cliente)-[:HA_CREADO]->(o:Orden)-[r:ESTA_COMPUESTA_DE]->(p:Producto)
+WHERE c.tieneTitulo = true
+RETURN p.nombre AS Producto, SUM(r.cantidad) AS Total_Comprado
+ORDER BY Total_Comprado DESC;
 
-3. ¿Cuáles son los principales productos comprados por los clientes que tiene un título académico?
+4. ¿Cuáles son los productos comprados por los clientes que viven en la misma ciudad
+del proveedor? 
 
-MATCH (c:Cliente {tieneTitulo: true})-[:HA_CREADO]->(o:Orden)-[r:ESTA_COMPUESTA_DE]->(p:Producto)
-RETURN p.nombre AS producto, SUM(r.cantidad) AS Total_Comprado
-ORDER BY Total_Comprado DESC
-
-4. ¿Cuáles son los productos comprados por los clientes que viven en la misma ciudad del proveedor?
-
-MATCH (c:Cliente)-[:VIVE_EN]->(ciudad:Ciudad)<-[:SE_UBICA_EN]-(prov:Proveedor)
-MATCH (c)-[:HA_CREADO]->(:Orden)-[:ESTA_COMPUESTA_DE]->(p:Producto)<-[:DISTRIBUIDO_POR]-(prov)
-RETURN p.nombre AS producto, COUNT(p) AS Veces_Comprado
-ORDER BY Veces_Comprado DESC
+MATCH (c:Cliente)-[:HA_CREADO]->(o:Orden)-[r:ESTA_COMPUESTA_DE]->(p:Producto),
+(prov:Proveedor)-[:DISTRIBUIDO_POR]->(p),
+(d:Direccion)-[:ESTA_UBICADA_EN]->(ci:Ciudad),
+(prov)-[:DISTRIBUIDO_POR]->(p)
+WHERE d.idDireccion = c.idDireccion AND ci.idCiudad = prov.idCiudad
+RETURN p.nombre AS Producto, COUNT(DISTINCT c.idCliente) AS Clientes_Que_Compraron
+ORDER BY Clientes_Que_Compraron DESC;
